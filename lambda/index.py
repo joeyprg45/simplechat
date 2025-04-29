@@ -1,10 +1,9 @@
-
 import json
 import os
 import urllib.request
 import time
 
-COLAB_API_URL = os.environ.get("COLAB_API_URL", "https://3f73-34-75-191-61.ngrok-free.app/generate")  
+COLAB_API_URL = os.environ.get("COLAB_API_URL", "https://3f73-34-75-191-61.ngrok-free.app/generate")
 
 def lambda_handler(event, context):
     print("Received event:", event)
@@ -13,7 +12,7 @@ def lambda_handler(event, context):
         if 'body' in event:
             body = json.loads(event['body']) if isinstance(event['body'], str) else event['body']
         else:
-            body = event 
+            body = event
         
         prompt = body['prompt']
         max_new_tokens = body.get('max_new_tokens', 512)
@@ -36,21 +35,21 @@ def lambda_handler(event, context):
         with urllib.request.urlopen(req) as response:
             response_data = json.load(response)
 
-
         generated_text = response_data.get("generated_text", "")
         end_time = time.time()
         response_time = end_time - start_time
 
+        
+        response_message = f"生成されたテキスト: {generated_text}\n応答時間: {response_time:.2f} 秒"
+
         return {
             'statusCode': 200,
-            'body': json.dumps({
-                'generated_text': generated_text,
-                'response_time': response_time
-            })
+            'body': response_message
         }
+
     except Exception as e:
         print("エラーが発生:", e)
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'body': f"エラーが発生しました: {str(e)}"
         }
